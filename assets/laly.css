@@ -866,6 +866,39 @@ table { border-collapse: collapse; width: 100%; }
 
 .carte--attente .carte__visuel { opacity: 0.65; }
 
+/* --- Téléphone ------------------------------------------------------- *
+ * Une carte par ligne donnait un visuel de 354 px de côté : le salon
+ * faisait défiler des photographies au lieu de lire des prix. Deux colonnes
+ * divisent la hauteur par deux et la photographie par quatre, sans jamais la
+ * rogner — `object-fit: contain` reste de mise.
+ */
+
+@media (max-width: 36rem) {
+  .grille {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--e5) 0.625rem;
+  }
+
+  .carte__corps { padding-top: var(--e2); }
+  .carte__nom { font-size: 0.875rem; }
+  .prix__v { font-size: 1rem; }
+  .prix--lg .prix__v { font-size: 1.5rem; }
+
+  /* Sur une demi-largeur, le sélecteur et le bouton ne tiennent plus côte
+     à côte : ils s'empilent, chacun sur toute la largeur de la carte. */
+  .carte__action {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.375rem;
+    padding-top: var(--e2);
+  }
+  .pas { justify-content: space-between; }
+  .pas__n { flex: 1; padding-block: 0.4375rem; }
+  .ajout { flex: none; padding: 0.5rem 0.25rem; }
+
+  .carte__variante { margin-top: var(--e2); }
+}
+
 /* ------------------------------------------------------------------ *
  * 10. Prix
  * ------------------------------------------------------------------ */
@@ -1256,6 +1289,16 @@ table { border-collapse: collapse; width: 100%; }
 /* ------------------------------------------------------------------ *
  * 14. Retour en haut
  * ------------------------------------------------------------------ */
+
+/* Sur téléphone, les cartes occupent toute la largeur : un bouton flottant
+   recouvrirait forcément une commande de quantité. La barre d'onglets reste
+   visible en permanence et son premier onglet ramène en haut — le bouton
+   n'apporte rien et disparaît. */
+.haut-page { display: none; }
+
+@media (min-width: 36.0625rem) {
+  .haut-page:not([hidden]) { display: block; }
+}
 
 .haut-page {
   position: fixed;

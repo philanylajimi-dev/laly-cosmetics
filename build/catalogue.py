@@ -307,49 +307,22 @@ SECTIONS = [
         ],
     },
     {
-        "id": "bidons",
-        "numero": "03",
-        "titre": "Bidons 10 litres",
-        "nav": "Bidons 10 L",
-        "intro": "Formats de bac pour une utilisation intensive en salon.",
-        "groupes": [
-            {
-                "nom": "Shampoings de bac",
-                "note": "Aucune promotion sur les bidons",
-                "refs": ["bid-dry", "bid-freq"],
-            },
-        ],
-    },
-    {
-        "id": "masques",
-        "numero": "04",
-        "titre": "Masques grand format",
-        "nav": "Masques grand format",
-        "intro": "Les pots de cabine. Chaque référence indique sa propre "
-                 "contenance.",
-        "groupes": [
-            {
-                "nom": "Pots de cabine",
-                "note": "",
-                "refs": ["mas-dry-1500", "mas-col-1000", "mas-bot-1000"],
-            },
-        ],
-    },
-    {
         "id": "soins",
-        "numero": "05",
+        "numero": "03",
         "titre": "Soins par gamme",
         "nav": "Soins",
         "intro": "Chaque gamme au complet : shampoings, masques, soins sans "
                  "rinçage et formats de bac.",
         "groupes": [
-            {"nom": "Dry Hair Care", "fonction": "Cheveux secs", "note": "",
+            {"nom": "Dry Hair Care", "fonction": "Cheveux secs",
+             "note": "Aucune promotion sur les bidons 10 L",
              "refs": ["sh-dry-300", "sh-dry-1000", "mas-dry-500", "mas-dry-1500",
                       "cr-dry-200", "bid-dry"]},
             {"nom": "Color Hair Care", "fonction": "Cheveux colorés", "note": "",
              "refs": ["sh-col-300", "sh-col-1000", "mas-col-500", "mas-col-1000",
                       "spr-col-200"]},
-            {"nom": "Frequent Hair Care", "fonction": "Lavages fréquents", "note": "",
+            {"nom": "Frequent Hair Care", "fonction": "Lavages fréquents",
+             "note": "Aucune promotion sur les bidons 10 L",
              "refs": ["sh-fre-1000", "ap-fre-1000", "spr-fre-250", "bid-freq"]},
             {"nom": "Curl Hair Care", "fonction": "Cheveux bouclés", "note": "",
              "refs": ["sh-cur-300", "sh-cur-1000", "mas-cur-500", "flu-cur-250"]},
@@ -368,7 +341,7 @@ SECTIONS = [
     },
     {
         "id": "technique",
-        "numero": "06",
+        "numero": "04",
         "titre": "Technique salon",
         "nav": "Technique",
         "intro": "Lissage réparateur, décoloration et neutralisation.",
@@ -383,7 +356,7 @@ SECTIONS = [
     },
     {
         "id": "homme",
-        "numero": "07",
+        "numero": "05",
         "titre": "Profesia X Men",
         "nav": "Homme",
         "intro": "Coiffage et rasage pour l'espace barbier.",

@@ -135,20 +135,29 @@ d'affichage subsistent, sans incidence sur les codes :
 
 Les 111 codes sont figés dans `build/nuancier.py`. Aucun n'a été modifié.
 
-## 8. Un produit, plusieurs cartes
+## 8. Accueil allégé — deux sections retirées
 
-Depuis le 24 octobre 2026, un produit paraît dans sa section générale **et**
-dans sa gamme : les trois masques grand format et les deux bidons sont affichés
-deux fois, soit 56 cartes pour 55 références.
+Les sections « Bidons 10 litres » et « Masques grand format », qui suivaient
+les colorations, ont été retirées le 24 octobre 2026. Leurs **cinq produits
+n'ont pas été supprimés** : ils restent visibles dans leur gamme, section
+« Soins par gamme ».
 
-Il n'y a pour autant qu'**une seule description** de chaque produit, dans
-`PRODUITS` (`build/catalogue.py`) : nom, prix, contenance et visuel sont donc
-identiques partout par construction, et le panier étant indexé par identifiant,
-les deux cartes alimentent la même ligne de commande. Un test le vérifie à
-chaque passage.
+| Référence | Désormais visible dans |
+|---|---|
+| Dry Hair Care 10 L | Dry Hair Care |
+| Frequent Hair Care 10 L | Frequent Hair Care |
+| Masque Dry Hair Care 1 500 ml | Dry Hair Care |
+| Masque Color Hair Care 1 000 ml | Color Hair Care |
+| Masque Botox 1 000 ml | Botox Hair Therapy |
 
-Pour faire paraître un produit dans une gamme de plus, il suffit d'ajouter son
-identifiant à la liste `refs` du groupe concerné.
+Chaque référence ne paraît donc plus qu'une seule fois. La mention « Aucune
+promotion sur les bidons » a suivi les bidons dans leurs gammes.
+
+Le modèle reste capable d'afficher un produit à plusieurs endroits : il suffit
+d'ajouter son identifiant à la liste `refs` d'un autre groupe, dans `SECTIONS`
+(`build/catalogue.py`). `PRODUITS` restant la source unique, nom, prix,
+contenance et visuel seraient identiques partout, et le panier — indexé par
+identifiant — n'en ferait qu'une seule ligne.
 
 ## 9. Écarts avec l'ancien catalogue suisse
 
@@ -204,7 +213,24 @@ dit déjà. Les deux gammes de coloration gardent leur sous-titre existant.
 Pour corriger un libellé : la clé `fonction` du groupe, dans `SECTIONS`
 (`build/catalogue.py`).
 
-## 12. Autres points
+## 12. Affichage sur téléphone
+
+En dessous de 576 px, les cartes passent à **deux par ligne** : le visuel
+descend de 354 px à 137–192 px selon l'appareil, et la page de produits est
+deux fois moins haute. Les photographies ne sont ni rognées ni déformées —
+elles gardent leur cadre carré et `object-fit: contain`.
+
+Le sélecteur de quantité et le bouton « Ajouter », qui ne tiennent plus côte à
+côte sur une demi-largeur, s'empilent sur toute la largeur de la carte.
+
+Le bouton flottant « retour en haut » **disparaît sur téléphone** : il venait
+nécessairement recouvrir une commande de quantité. La barre d'onglets reste
+visible en permanence et son premier onglet ramène à l'ouverture.
+
+L'affichage sur ordinateur et sur tablette est inchangé : mêmes colonnes,
+mêmes tailles de visuel qu'avant.
+
+## 13. Autres points
 
 - **TVA** : le catalogue affiche des prix HT, mentionnés comme tels partout.
   Aucun taux n'est appliqué ni affiché, faute d'instruction.
