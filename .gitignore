@@ -1,0 +1,8 @@
+# Catalogue suisse AF Lix Lox, conservé hors publication.
+reference/
+
+# Originaux de marque : le logo non détouré et la photographie du nuancier.
+# Ils ne servent qu'à refabriquer les visuels, jamais au catalogue en ligne.
+source-marque/
+
+.DS_Store
