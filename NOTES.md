@@ -230,20 +230,32 @@ visible en permanence et son premier onglet ramène à l'ouverture.
 L'affichage sur ordinateur et sur tablette est inchangé : mêmes colonnes,
 mêmes tailles de visuel qu'avant.
 
-## 13. Offre : ce que le catalogue refuse désormais
+## 13. Offre : une seule grille, répartition déduite
 
-Le droit aux colorations offertes suit la règle d'un tube offert par tube
-acheté au delà de 24, **sans plafond** : 24 → 24, 25 → 25, 30 → 30.
+Depuis le 26 octobre 2026, le salon ne choisit plus ses cadeaux séparément.
+Il prend toutes ses nuances dans la grille habituelle ; le catalogue déduit
+seul ce qui est payant et ce qui est offert, et l'affiche sous la grille :
+tubes sélectionnés, payants, offerts, montant à payer.
 
-Quand le salon réduit ses quantités payantes après avoir choisi ses cadeaux,
-le catalogue **ne rogne plus sa sélection en silence**. Il la laisse sous ses
-yeux, annonce l'excédent et bloque le bouton WhatsApp tant que la répartition
-n'est pas corrigée — dans le panneau de la gamme et dans le panier. Une
-correction automatique ferait disparaître des nuances sans que personne ne
-s'en aperçoive avant la livraison.
+La règle, tenue en un seul endroit — `repartition()` dans `build/catalogue.py`,
+avec sa jumelle dans `assets/laly.js` :
 
-Les nuances offertes restent librement choisies, indépendamment des payantes,
-dans la même gamme.
+| Sélection | Payants | Offerts |
+|---|---|---|
+| ≤ 24 | tout | 0 |
+| 25 à 47 | 24 | le reste |
+| 48 et au delà | la moitié, arrondie au supérieur | l'autre moitié |
+
+Soit : les payants ne descendent jamais sous le seuil, ni sous la moitié de la
+sélection, puisqu'un tube offert doit être couvert par un tube payant.
+30 → 24 + 6 · 48 → 24 + 24 · 50 → 25 + 25 · 60 → 30 + 30.
+
+Conséquence : le dépassement est devenu **impossible par construction**.
+L'alerte et le verrou sur l'envoi WhatsApp, qui protégeaient l'ancienne saisie
+manuelle, ont été retirés faute d'objet.
+
+L'offre reste propre à chaque gamme : Profesia Hair et Ekstra Color ne
+s'additionnent pas.
 
 ## 14. Autres points
 

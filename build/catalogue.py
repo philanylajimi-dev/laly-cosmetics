@@ -58,27 +58,43 @@ OFFRE = {
     "gammes": "Profesia Hair — Nuances au choix",
     "regles": [
         "L'offre s'applique séparément aux deux gammes.",
-        "Le seuil est de 24 tubes achetés dans une même gamme.",
-        "En dessous de 24 tubes, aucune coloration offerte.",
-        "À partir de 24 tubes achetés, chaque tube acheté donne droit à un tube offert.",
-        "Les nuances offertes peuvent différer des nuances achetées, à condition "
-        "d'appartenir à la même gamme.",
+        "Le seuil est de 24 tubes dans une même gamme.",
+        "En dessous de 24 tubes, tout est payant.",
+        "Au delà, chaque tube payant donne droit à un tube offert.",
+        "Le salon choisit toutes ses nuances dans la même grille : le catalogue "
+        "déduit seul ce qui est payant et ce qui est offert.",
         "Les quantités Profesia Hair et Ekstra Color ne s'additionnent pas pour "
         "atteindre le seuil.",
     ],
-    # Paliers et règles ne sont plus affichés dans l'ouverture, qui se limite
-    # à l'annonce. Ils restent ici : le calcul du panier s'y réfère et ils
-    # servent de mémoire des conditions validées.
-    "paliers": [12, 23, 24, 30, 48],
+    # Les règles ne sont plus affichées dans l'ouverture, qui se limite à
+    # l'annonce. Elles restent ici comme mémoire des conditions validées.
 }
 
 
-def tubes_offerts(achetes):
-    """La mécanique de l'offre, en un seul endroit.
+def repartition(total):
+    """Partage une sélection de tubes entre payants et offerts.
+
+    Le salon choisit ses nuances dans une seule grille ; le catalogue en
+    déduit ce qu'il paie. Un tube offert par tube payant au delà du seuil :
+
+        total ≤ 24          tout est payant
+        25 … 47             24 payants, le reste offert
+        48 et au delà       moitié payante, moitié offerte
+
+    Soit, en une ligne : les payants ne descendent jamais sous le seuil, et
+    jamais sous la moitié de la sélection, puisqu'un tube offert doit être
+    couvert par un tube payant.
+
+        24 → 24 payants, 0 offert       48 → 24 / 24
+        30 → 24 payants, 6 offerts      50 → 25 / 25
+        47 → 24 payants, 23 offerts     60 → 30 / 30
 
     Le JavaScript du catalogue applique exactement la même règle.
     """
-    return achetes if achetes >= OFFRE["seuil"] else 0
+    if total <= OFFRE["seuil"]:
+        return total, 0
+    payants = max(OFFRE["seuil"], -(-total // 2))   # division entière par excès
+    return payants, total - payants
 
 
 # --------------------------------------------------------------------------- #

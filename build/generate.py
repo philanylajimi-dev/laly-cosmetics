@@ -295,9 +295,9 @@ def bloc_colorations():
   <div class="gamme__corps">
     <div class="gamme__barre">
       <p class="compte" data-compte>
-        <span class="compte__n" data-compte-achetes>0</span><span data-compte-mot> tube acheté</span>
+        <span class="compte__n" data-compte-achetes>0</span><span data-compte-mot> tube sélectionné</span>
         <span class="compte__plus" data-compte-bloc-offerts hidden>
-          <span class="compte__sep" aria-hidden="true">+</span>
+          <span class="compte__sep" aria-hidden="true">dont</span>
           <span class="compte__n compte__n--offert" data-compte-offerts>0</span> offert
         </span>
         <span class="compte__reste" data-compte-reste></span>
@@ -314,21 +314,15 @@ def bloc_colorations():
       <p class="gamme__vide" data-filtre-vide hidden>Aucune nuance ne correspond.</p>
     </div>
 
-    <div class="offerts" data-offerts hidden>
-      <div class="offerts__tete">
-        <h4 class="offerts__titre">Choisissez vos nuances offertes</h4>
-        <p class="offerts__solde" data-offerts-solde></p>
-      </div>
-      <p class="offerts__alerte" data-offerts-alerte hidden role="alert"></p>
-      <div class="offerts__outils">
-        <button type="button" class="bouton bouton--fin" data-offerts-miroir>Reprendre la même répartition</button>
-        <div class="offerts__ajout">
-          <label class="u-lecteur" for="sel-{col['gamme']}">Nuance offerte à ajouter</label>
-          <select id="sel-{col['gamme']}" data-offerts-select></select>
-          <button type="button" class="bouton bouton--fin" data-offerts-ajout>Ajouter</button>
-        </div>
-      </div>
-      <ul class="offerts__liste" data-offerts-liste></ul>
+    <div class="bilan" data-bilan>
+      <h4 class="bilan__titre">Votre sélection</h4>
+      <dl class="bilan__lignes">
+        <div class="bilan__l"><dt>Tubes sélectionnés</dt><dd data-bilan-total>0</dd></div>
+        <div class="bilan__l"><dt>Tubes payants</dt><dd data-bilan-payants>0</dd></div>
+        <div class="bilan__l bilan__l--offert"><dt>Tubes offerts</dt><dd data-bilan-offerts>0</dd></div>
+      </dl>
+      <p class="bilan__montant"><span>Montant à payer</span><span class="bilan__v"><span data-bilan-montant>0,00</span> € HT</span></p>
+      <p class="bilan__note" data-bilan-note></p>
     </div>
   </div>
 </article>""")
@@ -510,7 +504,6 @@ def rendre():
   </div>
 
   <div class="panier__pied">
-    <p class="panier__alerte" data-panier-alerte hidden role="alert"></p>
     <p class="total"><span>Total HT</span><span class="total__v" data-total>0,00 €</span></p>
 
     <div class="champ">

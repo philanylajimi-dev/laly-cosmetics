@@ -14,22 +14,18 @@
   'use strict';
 
   var DONNEES = JSON.parse(document.getElementById('donnees').textContent);
-  var CLE = 'laly-commande';
+  var CLE = 'laly-commande-2';
 
   /* ---- État --------------------------------------------------------- */
 
   var etat = {
     produits: {},   // ref -> quantité
-    achats: {},     // gamme -> { nuance: quantité }
-    offerts: {},    // gamme -> { nuance: quantité }
+    achats: {},     // gamme -> { nuance: quantité sélectionnée }
     salon: '',
     livraison: ''
   };
 
-  Object.keys(DONNEES.gammes).forEach(function (g) {
-    etat.achats[g] = {};
-    etat.offerts[g] = {};
-  });
+  Object.keys(DONNEES.gammes).forEach(function (g) { etat.achats[g] = {}; });
 
   function charger() {
     try {
@@ -42,14 +38,12 @@
       Object.keys(lu.produits || {}).forEach(function (ref) {
         if (DONNEES.produits[ref]) etat.produits[ref] = entier(lu.produits[ref]);
       });
-      ['achats', 'offerts'].forEach(function (champ) {
-        Object.keys(lu[champ] || {}).forEach(function (g) {
-          if (!DONNEES.gammes[g]) return;
-          Object.keys(lu[champ][g] || {}).forEach(function (n) {
-            if (DONNEES.gammes[g].nuances.indexOf(n) !== -1) {
-              etat[champ][g][n] = entier(lu[champ][g][n]);
-            }
-          });
+      Object.keys(lu.achats || {}).forEach(function (g) {
+        if (!DONNEES.gammes[g]) return;
+        Object.keys(lu.achats[g] || {}).forEach(function (n) {
+          if (DONNEES.gammes[g].nuances.indexOf(n) !== -1) {
+            etat.achats[g][n] = entier(lu.achats[g][n]);
+          }
         });
       });
       etat.salon = typeof lu.salon === 'string' ? lu.salon : '';
@@ -74,14 +68,22 @@
     return Object.keys(objet).reduce(function (t, c) { return t + objet[c]; }, 0);
   }
 
-  /** La mécanique de l'offre : à partir du seuil, un tube offert par tube acheté. */
-  function droitOfferts(gamme) {
-    var achetes = somme(etat.achats[gamme]);
-    return achetes >= DONNEES.seuil ? achetes : 0;
-  }
-
-  function resteARepartir(gamme) {
-    return droitOfferts(gamme) - somme(etat.offerts[gamme]);
+  /** Partage une sélection de tubes entre payants et offerts.
+   *
+   * Le salon ne choisit plus ses cadeaux séparément : il prend ses nuances
+   * dans une seule grille, et le catalogue en déduit ce qu'il paie. Un tube
+   * offert doit être couvert par un tube payant, et les payants ne descendent
+   * jamais sous le seuil.
+   *
+   *   24 → 24 / 0     30 → 24 / 6     48 → 24 / 24     50 → 25 / 25
+   *
+   * Jumelle exacte de `repartition()` dans build/catalogue.py.
+   */
+  function repartition(gamme) {
+    var total = somme(etat.achats[gamme]);
+    if (total <= DONNEES.seuil) return { total: total, payants: total, offerts: 0 };
+    var payants = Math.max(DONNEES.seuil, Math.ceil(total / 2));
+    return { total: total, payants: payants, offerts: total - payants };
   }
 
   /** Total hors taxes, en centimes : aucun flottant n'intervient. */
@@ -91,7 +93,7 @@
       t += DONNEES.produits[ref].prix * etat.produits[ref];
     });
     Object.keys(etat.achats).forEach(function (g) {
-      t += DONNEES.gammes[g].prix * somme(etat.achats[g]);
+      t += DONNEES.gammes[g].prix * repartition(g).payants;
     });
     return t;
   }
@@ -109,24 +111,6 @@
   }
 
   /* ---- Garde-fous --------------------------------------------------- */
-
-  /** Tubes offerts sélectionnés au delà du droit acquis.
-   *
-   * On ne rogne plus la sélection dans le dos du salon : s'il retire des
-   * tubes payants après avoir choisi ses cadeaux, il garde sa sélection sous
-   * les yeux, le catalogue le lui dit, et l'envoi reste bloqué tant qu'il n'a
-   * pas corrigé. Une correction silencieuse ferait disparaître des nuances
-   * sans que personne ne s'en aperçoive avant la livraison.
-   */
-  function excesOfferts(gamme) {
-    return Math.max(0, somme(etat.offerts[gamme]) - droitOfferts(gamme));
-  }
-
-  function excesTotal() {
-    return Object.keys(DONNEES.gammes).reduce(function (t, g) {
-      return t + excesOfferts(g);
-    }, 0);
-  }
 
   /* ---- Nuanciers ----------------------------------------------------- */
 
@@ -147,33 +131,6 @@
         if (etat.achats[gamme][code] <= 0) delete etat.achats[gamme][code];
         rendre();
       });
-    });
-
-    var select = bloc.querySelector('[data-offerts-select]');
-    DONNEES.gammes[gamme].nuances.forEach(function (code) {
-      var o = document.createElement('option');
-      o.value = code;
-      o.textContent = code;
-      select.appendChild(o);
-    });
-
-    bloc.querySelector('[data-offerts-ajout]').addEventListener('click', function () {
-      if (resteARepartir(gamme) <= 0) return;
-      var code = select.value;
-      etat.offerts[gamme][code] = (etat.offerts[gamme][code] || 0) + 1;
-      rendre();
-    });
-
-    bloc.querySelector('[data-offerts-miroir]').addEventListener('click', function () {
-      // Le cas courant : le salon veut les mêmes nuances en offert. Le droit
-      // étant égal au nombre acheté, la copie tombe toujours juste.
-      etat.offerts[gamme] = {};
-      var droit = droitOfferts(gamme);
-      if (!droit) return;
-      Object.keys(etat.achats[gamme]).forEach(function (c) {
-        etat.offerts[gamme][c] = etat.achats[gamme][c];
-      });
-      rendre();
     });
 
     var filtre = bloc.querySelector('[data-filtre]');
@@ -208,29 +165,11 @@
       });
     }
 
-    bloc.querySelector('[data-offerts-liste]').addEventListener('click', function (ev) {
-      var b = ev.target.closest('button[data-off-action]');
-      if (!b) return;
-      var code = b.getAttribute('data-off-code');
-      var action = b.getAttribute('data-off-action');
-      if (action === 'plus') {
-        if (resteARepartir(gamme) <= 0) return;
-        etat.offerts[gamme][code] = (etat.offerts[gamme][code] || 0) + 1;
-      } else if (action === 'moins') {
-        etat.offerts[gamme][code] -= 1;
-        if (etat.offerts[gamme][code] <= 0) delete etat.offerts[gamme][code];
-      } else {
-        delete etat.offerts[gamme][code];
-      }
-      rendre();
-    });
   });
 
   function rendreGamme(bloc) {
     var gamme = bloc.getAttribute('data-gamme');
-    var achetes = somme(etat.achats[gamme]);
-    var droit = droitOfferts(gamme);
-    var reste = resteARepartir(gamme);
+    var r = repartition(gamme);
 
     bloc.querySelectorAll('.nuance').forEach(function (cellule) {
       var code = cellule.getAttribute('data-nuance');
@@ -239,48 +178,47 @@
       cellule.classList.toggle('est-choisie', q > 0);
     });
 
-    bloc.querySelector('[data-compte-achetes]').textContent = achetes;
+    bloc.querySelector('[data-compte-achetes]').textContent = r.total;
     bloc.querySelector('[data-compte-mot]').textContent =
-      achetes > 1 ? ' tubes achetés' : ' tube acheté';
+      r.total > 1 ? ' tubes sélectionnés' : ' tube sélectionné';
 
     var blocOff = bloc.querySelector('[data-compte-bloc-offerts]');
-    blocOff.hidden = droit === 0;
-    bloc.querySelector('[data-compte-offerts]').textContent = somme(etat.offerts[gamme]);
+    blocOff.hidden = r.offerts === 0;
+    bloc.querySelector('[data-compte-offerts]').textContent = r.offerts;
 
     var msgReste = '';
-    if (achetes > 0 && achetes < DONNEES.seuil) {
-      var manque = DONNEES.seuil - achetes;
-      msgReste = 'Encore ' + manque + ' tube' + (manque > 1 ? 's' : '')
-        + ' pour déclencher l’offre';
+    if (r.total > 0 && r.offerts === 0) {
+      var manque = DONNEES.seuil + 1 - r.total;
+      msgReste = manque > 0
+        ? 'Encore ' + manque + ' tube' + (manque > 1 ? 's' : '')
+          + ' pour déclencher l’offre'
+        : 'Ajoutez un tube : le suivant est offert';
     }
     bloc.querySelector('[data-compte-reste]').textContent = msgReste;
 
-    // Le panneau reste ouvert tant qu'une nuance offerte est sélectionnée,
-    // même si le droit est retombé à zéro : sinon le salon ne pourrait plus
-    // corriger ce que le catalogue lui reproche.
-    var choisis = somme(etat.offerts[gamme]);
-    var exces = excesOfferts(gamme);
-    var zone = bloc.querySelector('[data-offerts]');
-    zone.hidden = droit === 0 && choisis === 0;
+    // Le bilan sous la grille : ce que le salon reçoit, ce qu'il paie.
+    var prix = DONNEES.gammes[gamme].prix;
+    bloc.querySelector('[data-bilan-total]').textContent = r.total;
+    bloc.querySelector('[data-bilan-payants]').textContent = r.payants;
+    bloc.querySelector('[data-bilan-offerts]').textContent = r.offerts;
+    bloc.querySelector('[data-bilan-montant]').textContent =
+      ((prix * r.payants) / 100).toFixed(2).replace('.', ',');
+    bloc.querySelector('[data-bilan]').classList.toggle('bilan--actif', r.offerts > 0);
 
-    bloc.querySelector('[data-offerts-solde]').textContent =
-      choisis + ' coloration' + (choisis > 1 ? 's' : '') + ' offerte'
-      + (choisis > 1 ? 's' : '') + ' sélectionnée' + (choisis > 1 ? 's' : '')
-      + ' sur ' + droit + ' disponible' + (droit > 1 ? 's' : '');
-
-    var alerte = bloc.querySelector('[data-offerts-alerte]');
-    alerte.hidden = exces === 0;
-    if (exces) {
-      alerte.textContent = droit === 0
-        ? 'Votre commande est repassée sous ' + DONNEES.seuil + ' tubes : retirez '
-          + 'les ' + choisis + ' coloration' + (choisis > 1 ? 's' : '') + ' offerte'
-          + (choisis > 1 ? 's' : '') + ' ou complétez vos achats.'
-        : exces + ' coloration' + (exces > 1 ? 's' : '') + ' offerte'
-          + (exces > 1 ? 's' : '') + ' de trop : retirez-en ' + exces
-          + ' pour pouvoir envoyer la commande.';
+    var note = bloc.querySelector('[data-bilan-note]');
+    if (r.total === 0) {
+      note.textContent = 'Choisissez vos nuances ci-dessus : à partir de '
+        + (DONNEES.seuil + 1) + ' tubes, un tube sur deux vous est offert.';
+    } else if (r.offerts === 0) {
+      var m = DONNEES.seuil + 1 - r.total;
+      note.textContent = m > 0
+        ? 'Encore ' + m + ' tube' + (m > 1 ? 's' : '') + ' et l’offre se déclenche.'
+        : 'L’offre se déclenche au tube suivant.';
+    } else {
+      note.textContent = 'Offre appliquée : ' + r.offerts + ' tube'
+        + (r.offerts > 1 ? 's' : '') + ' offert' + (r.offerts > 1 ? 's' : '')
+        + ' sur les ' + r.total + ' sélectionnés.';
     }
-    zone.classList.toggle('offerts--exces', exces > 0);
-    bloc.querySelector('[data-offerts-ajout]').disabled = reste <= 0;
 
     // Combien de tubes dans chaque famille repliée : la quantité choisie ne
     // doit pas disparaître parce qu'on a refermé la catégorie.
@@ -294,21 +232,6 @@
       badge.textContent = t + ' tube' + (t > 1 ? 's' : '');
     });
 
-    var liste = bloc.querySelector('[data-offerts-liste]');
-    liste.textContent = '';
-    Object.keys(etat.offerts[gamme]).forEach(function (code) {
-      var li = document.createElement('li');
-      li.className = 'offerts__l';
-      li.innerHTML =
-        '<span class="offerts__code">' + code + '</span>' +
-        '<span class="pas">' +
-          '<button type="button" class="pas__b" data-off-action="moins" data-off-code="' + code + '" aria-label="Retirer un tube offert ' + code + '">−</button>' +
-          '<span class="pas__n pas__n--txt">' + etat.offerts[gamme][code] + '</span>' +
-          '<button type="button" class="pas__b" data-off-action="plus" data-off-code="' + code + '" aria-label="Ajouter un tube offert ' + code + '">+</button>' +
-        '</span>' +
-        '<button type="button" class="p-retire" data-off-action="retire" data-off-code="' + code + '">Retirer</button>';
-      liste.appendChild(li);
-    });
   }
 
   /* ---- Cartes produit ------------------------------------------------ */
@@ -488,10 +411,7 @@
 
   panier.querySelector('[data-vider]').addEventListener('click', function () {
     etat.produits = {};
-    Object.keys(DONNEES.gammes).forEach(function (g) {
-      etat.achats[g] = {};
-      etat.offerts[g] = {};
-    });
+    Object.keys(DONNEES.gammes).forEach(function (g) { etat.achats[g] = {}; });
     rendre();
   });
 
@@ -537,24 +457,31 @@
     '</div>';
   }
 
-  function ligneGamme(gamme, offert) {
+  function ligneGamme(gamme) {
     var g = DONNEES.gammes[gamme];
-    var table = offert ? etat.offerts[gamme] : etat.achats[gamme];
+    var table = etat.achats[gamme];
     var codes = Object.keys(table);
     if (!codes.length) return '';
-    var total = somme(table);
+    var r = repartition(gamme);
     var puces = codes.map(function (c) {
       return '<li>' + c + ' × ' + table[c] + '</li>';
     }).join('');
+    var detail = r.offerts
+      ? r.payants + ' payant' + (r.payants > 1 ? 's' : '') + ' · '
+        + r.offerts + ' offert' + (r.offerts > 1 ? 's' : '')
+      : euros(g.prix) + ' le tube';
 
-    return '<div class="p-ligne' + (offert ? ' p-ligne--offert' : '') + '">' +
-      '<div><p class="p-ligne__nom">' + g.nom + (offert ? ' — offertes' : '') + '</p>' +
-      '<p class="p-ligne__fmt">' + total + ' tube' + (total > 1 ? 's' : '') +
+    return '<div class="p-ligne">' +
+      '<div><p class="p-ligne__nom">' + g.nom + '</p>' +
+      '<p class="p-ligne__fmt">' + r.total + ' tube' + (r.total > 1 ? 's' : '') +
       ' · 100 ml</p></div>' +
-      '<p class="p-ligne__st">' + (offert ? '0,00 €' : euros(g.prix * total)) + '</p>' +
+      '<p class="p-ligne__st">' + euros(g.prix * r.payants) + '</p>' +
       '<ul class="p-nuances">' + puces + '</ul>' +
+      (r.offerts ? '<p class="p-ligne__offre">' + r.offerts + ' tube'
+        + (r.offerts > 1 ? 's' : '') + ' offert' + (r.offerts > 1 ? 's' : '')
+        + ' · 0,00 €</p>' : '') +
       '<div class="p-ligne__bas">' +
-        '<span class="p-ligne__u">' + (offert ? 'Offert' : euros(g.prix) + ' le tube') + '</span>' +
+        '<span class="p-ligne__u">' + detail + '</span>' +
         '<button type="button" class="p-retire" data-p-action="voir">Modifier les nuances</button>' +
       '</div>' +
     '</div>';
@@ -569,20 +496,11 @@
         refs.map(ligneProduit).join('') + '</div>');
     }
 
-    var achats = Object.keys(DONNEES.gammes)
-      .map(function (g) { return ligneGamme(g, false); })
-      .filter(Boolean).join('');
-    if (achats) {
+    var colorations = Object.keys(DONNEES.gammes)
+      .map(ligneGamme).filter(Boolean).join('');
+    if (colorations) {
       morceaux.push('<div class="p-bloc"><h3 class="p-bloc__titre">Colorations</h3>' +
-        achats + '</div>');
-    }
-
-    var cadeaux = Object.keys(DONNEES.gammes)
-      .map(function (g) { return ligneGamme(g, true); })
-      .filter(Boolean).join('');
-    if (cadeaux) {
-      morceaux.push('<div class="p-bloc"><h3 class="p-bloc__titre">Colorations offertes</h3>' +
-        cadeaux + '</div>');
+        colorations + '</div>');
     }
 
     blocs.innerHTML = morceaux.join('');
@@ -623,31 +541,21 @@
       var codes = Object.keys(table);
       if (!codes.length) return;
       var g = DONNEES.gammes[gamme];
-      var total = somme(table);
-      L.push('- ' + g.nom + ' 100 ml : ' + total + ' × ' + euros(g.prix)
-        + ' = ' + euros(g.prix * total));
+      var r = repartition(gamme);
+      L.push('- ' + g.nom + ' 100 ml : ' + r.total + ' tube'
+        + (r.total > 1 ? 's' : '') + ' sélectionné' + (r.total > 1 ? 's' : ''));
       L.push('  Nuances : ' + codes.map(function (c) {
         return c + ' × ' + table[c];
       }).join(', '));
+      if (r.offerts) {
+        L.push('  ' + r.payants + ' payant' + (r.payants > 1 ? 's' : '') + ' × '
+          + euros(g.prix) + ' = ' + euros(g.prix * r.payants)
+          + '  +  ' + r.offerts + ' offert' + (r.offerts > 1 ? 's' : '') + ' (0,00 €)');
+      } else {
+        L.push('  ' + r.payants + ' × ' + euros(g.prix) + ' = '
+          + euros(g.prix * r.payants));
+      }
     });
-
-    var cadeaux = Object.keys(DONNEES.gammes).filter(function (g) {
-      return Object.keys(etat.offerts[g]).length > 0;
-    });
-    if (cadeaux.length) {
-      L.push('');
-      L.push('Colorations offertes :');
-      L.push('');
-      cadeaux.forEach(function (gamme) {
-        var table = etat.offerts[gamme];
-        var total = somme(table);
-        L.push('- ' + DONNEES.gammes[gamme].nom + ' : ' + total + ' tube'
-          + (total > 1 ? 's' : '') + ' offert' + (total > 1 ? 's' : '') + ' (0,00 €)');
-        L.push('  Nuances : ' + Object.keys(table).map(function (c) {
-          return c + ' × ' + table[c];
-        }).join(', '));
-      });
-    }
 
     L.push('');
     L.push('Montant total HT : ' + euros(totalCents()));
@@ -668,20 +576,11 @@
   var lienWa = panier.querySelector('[data-whatsapp]');
 
   function majLien() {
-    var exces = excesTotal();
-    var pret = nbArticles() > 0 && exces === 0;
+    var pret = nbArticles() > 0;
     lienWa.setAttribute('aria-disabled', pret ? 'false' : 'true');
     lienWa.href = pret
       ? 'https://wa.me/' + DONNEES.tel + '?text=' + encodeURIComponent(message())
       : '#';
-    var avis = panier.querySelector('[data-panier-alerte]');
-    avis.hidden = exces === 0;
-    if (exces) {
-      avis.textContent = 'Vous avez sélectionné ' + exces + ' coloration'
-        + (exces > 1 ? 's' : '') + ' offerte' + (exces > 1 ? 's' : '')
-        + ' de trop. Corrigez la répartition dans la section Colorations '
-        + 'pour envoyer la commande.';
-    }
   }
 
   /* ---- Rendu global --------------------------------------------------- */
