@@ -257,7 +257,38 @@ manuelle, ont été retirés faute d'objet.
 L'offre reste propre à chaque gamme : Profesia Hair et Ekstra Color ne
 s'additionnent pas.
 
-## 14. Autres points
+## 14. Message WhatsApp : les tubes offerts en déduction
+
+Le modèle de message demandé le 26 octobre 2026 prévoit, pour chaque
+coloration, une ligne « nom – Nuance X » suivie de
+« quantité × prix unitaire = sous-total ». Il ne prévoyait pas les tubes
+offerts, qui ne sont rattachés à aucune nuance en particulier puisque le salon
+choisit librement dans une seule grille.
+
+**Quand l'offre ne s'applique pas**, chaque nuance porte son propre calcul,
+exactement comme un produit :
+
+    Profesia Hair – Nuance 7/0
+    20 tubes × 8,00 € = 160,00 €
+
+**Quand elle s'applique**, les nuances annoncent les quantités et deux lignes
+séparent ce qui est payé de ce qui est offert :
+
+    Profesia Hair – Nuance 7/0
+    48 tubes sélectionnés
+
+    Profesia Hair – Tubes payants
+    24 × 8,00 € = 192,00 €
+
+    Profesia Hair – Tubes OFFERTS
+    24 × 0,00 € = 0,00 € (offert)
+
+    TOTAL HT : 219,80 €
+
+Le mot « offert » apparaît ainsi noir sur blanc, l'arithmétique reste
+vérifiable par le destinataire, et le total correspond exactement au panier.
+
+## 15. Autres points
 
 - **TVA** : le catalogue affiche des prix HT, mentionnés comme tels partout.
   Aucun taux n'est appliqué ni affiché, faute d'instruction.

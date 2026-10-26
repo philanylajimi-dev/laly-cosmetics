@@ -136,14 +136,14 @@ PRODUITS = {
     # ---- Bidons 10 L ------------------------------------------------------- #
     "bid-dry": P("Dry Hair Care", "10 L", 6000,
                  "shampoing-pour-cheveux-secs-bidon-de-10-litres"),
-    "bid-freq": P("Frequent Hair Care", "10 L", 3500,
+    "bid-freq": P("Frequent Hair Care", "10 L", 4000,
                   "shampoing-aux-amandes-frequent-care-pour-lavages-frequents-bidon-de-10-litres",
                   photo_a_valider=True),
 
     # ---- Dry Hair Care ------------------------------------------------------ #
     "sh-dry-300": P("Shampoing Dry Hair Care", "300 ml", 590,
                     "shampoing-soin-cheveux-secs-300-ml"),
-    "sh-dry-1000": P("Shampoing Dry Hair Care", "1 000 ml", 1290,
+    "sh-dry-1000": P("Shampoing Dry Hair Care", "1 000 ml", 1390,
                      "shampoing-soin-cheveux-secs-pour-cheveux-secs-1000-ml"),
     "mas-dry-500": P("Masque Dry Hair Care", "500 ml", 1190,
                      "masque-soin-cheveux-secs-500-ml"),
@@ -155,7 +155,7 @@ PRODUITS = {
     # ---- Color Hair Care ----------------------------------------------------- #
     "sh-col-300": P("Shampoing Color Hair Care", "300 ml", 590,
                     "shampoing-color-care-pour-cheveux-colores-300-ml"),
-    "sh-col-1000": P("Shampoing Color Hair Care", "1 000 ml", 1290,
+    "sh-col-1000": P("Shampoing Color Hair Care", "1 000 ml", 1390,
                      "shampoing-color-care-pour-cheveux-colores-1000-ml"),
     "mas-col-500": P("Masque Color Hair Care", "500 ml", 1190,
                      "masque-soin-colorant-cheveux-colores-500-ml"),
@@ -165,7 +165,7 @@ PRODUITS = {
                      "spray-protecteur-de-couleur-200-ml"),
 
     # ---- Frequent Hair Care --------------------------------------------------- #
-    "sh-fre-1000": P("Shampoing Frequent Hair Care", "1 000 ml", 1290,
+    "sh-fre-1000": P("Shampoing Frequent Hair Care", "1 000 ml", 1390,
                      "shampoing-frequent-aux-agrumes-de-sicile-1000-ml"),
     "ap-fre-1000": P("Après-shampoing Frequent Hair Care", "1 000 ml", 1390,
                      "apres-shampoing-frequent-aux-agrumes-de-sicile-1000-ml"),
@@ -175,7 +175,7 @@ PRODUITS = {
     # ---- Curl Hair Care ------------------------------------------------------- #
     "sh-cur-300": P("Shampoing Curl Hair Care", "300 ml", 590,
                     "shampoing-curls-pour-cheveux-boucles-300-ml"),
-    "sh-cur-1000": P("Shampoing Curl Hair Care", "1 000 ml", 1290,
+    "sh-cur-1000": P("Shampoing Curl Hair Care", "1 000 ml", 1390,
                      "shampoing-curls-pour-cheveux-boucles-1000-ml"),
     "mas-cur-500": P("Masque Curl Hair Care", "500 ml", 1190,
                      "masque-cheveux-boucles-curls-hair-care-500-ml"),
@@ -183,19 +183,19 @@ PRODUITS = {
                      "fluide-boucles-soin-boucles-250-ml"),
 
     # ---- Greasy Hair Care ------------------------------------------------------ #
-    "sh-gre-1000": P("Shampoing Greasy Hair Care", "1 000 ml", 1290,
+    "sh-gre-1000": P("Shampoing Greasy Hair Care", "1 000 ml", 1390,
                      "shampooing-anti-graisse-cheveux-gras-1000-ml"),
 
     # ---- Dandruff Hair Care ----------------------------------------------------- #
     "sh-dan-300": P("Shampoing Dandruff Hair Care", "300 ml", 590,
                     "shampooing-antipelliculaire-soin-capillaire-300-ml"),
-    "sh-dan-1000": P("Shampoing Dandruff Hair Care", "1 000 ml", 1290,
+    "sh-dan-1000": P("Shampoing Dandruff Hair Care", "1 000 ml", 1390,
                      "shampooing-antipelliculaire-1000-ml"),
 
     # ---- Loss Hair Care ---------------------------------------------------------- #
     "sh-los-300": P("Shampoing Loss Hair Care", "300 ml", 590,
                     "shampoing-anti-chute-aux-algues-marines-300-ml"),
-    "sh-los-1000": P("Shampoing Loss Hair Care", "1 000 ml", 1290,
+    "sh-los-1000": P("Shampoing Loss Hair Care", "1 000 ml", 1390,
                      "shampoing-anti-chute-loss-hair-care-1000-ml"),
     "lot-los-150": P("Lotion Loss", "150 ml", 1290,
                      "lotion-energisante-anti-chute-150-ml"),
@@ -208,13 +208,13 @@ PRODUITS = {
                      attente="Disponibilité France à confirmer"),
 
     # ---- Botox Hair Therapy ---------------------------------------------------------- #
-    "sh-bot-300": P("Shampoing Botox", "300 ml", 1120,
+    "sh-bot-300": P("Shampoing Botox", "300 ml", 1200,
                     "shampoing-reconstruction-capillaire-botox-300-ml"),
-    "sh-bot-1000": P("Shampoing Botox", "1 000 ml", 1720,
+    "sh-bot-1000": P("Shampoing Botox", "1 000 ml", 2020,
                      "botox-hair-therapy-reconstruction-shampoo-1000-ml"),
-    "mas-bot-500": P("Masque Botox", "500 ml", 1490,
+    "mas-bot-500": P("Masque Botox", "500 ml", 1550,
                      "masque-reconstruction-capillaire-botox-500-ml"),
-    "mas-bot-1000": P("Masque Botox", "1 000 ml", 1990,
+    "mas-bot-1000": P("Masque Botox", "1 000 ml", 2290,
                       "masque-reconstruction-capillaire-botox-1000-ml"),
     "ser-bot-12": P("Sérum Botox", "12 × 10 ml", 2690,
                     "serum-reconstruction-capillaire-botox-12-ampoules-x-10-ml"),

@@ -518,57 +518,72 @@
 
   function message() {
     var L = [];
-    L.push('Bonjour,');
+    L.push('Bonjour Laly Cosmetics,');
     L.push('');
-    L.push('Je souhaite passer la commande suivante auprès de Laly Cosmetics :');
+    L.push('Je souhaite passer la commande suivante :');
     L.push('');
     if (etat.salon) {
       L.push('Salon : ' + etat.salon);
       L.push('');
     }
-    L.push('Détail de la commande :');
+    L.push('COMMANDE :');
     L.push('');
 
+    // Produits : nom et format sur la première ligne, le calcul sur la seconde.
     Object.keys(etat.produits).forEach(function (ref) {
       var p = DONNEES.produits[ref];
       var q = etat.produits[ref];
-      L.push('- ' + p.nom + ' ' + p.fmt + ' : ' + q + ' × ' + euros(p.prix)
-        + ' = ' + euros(p.prix * q));
+      L.push(p.nom + ' – ' + p.fmt);
+      L.push(q + ' × ' + euros(p.prix) + ' = ' + euros(p.prix * q));
+      L.push('');
     });
 
+    // Colorations : une ligne par nuance, puis la remise de l'offre. Les
+    // tubes offerts n'étant rattachés à aucune nuance en particulier, les
+    // montrer en déduction garde le détail lisible et le total juste.
     Object.keys(DONNEES.gammes).forEach(function (gamme) {
       var table = etat.achats[gamme];
       var codes = Object.keys(table);
       if (!codes.length) return;
       var g = DONNEES.gammes[gamme];
       var r = repartition(gamme);
-      L.push('- ' + g.nom + ' 100 ml : ' + r.total + ' tube'
-        + (r.total > 1 ? 's' : '') + ' sélectionné' + (r.total > 1 ? 's' : ''));
-      L.push('  Nuances : ' + codes.map(function (c) {
-        return c + ' × ' + table[c];
-      }).join(', '));
-      if (r.offerts) {
-        L.push('  ' + r.payants + ' payant' + (r.payants > 1 ? 's' : '') + ' × '
-          + euros(g.prix) + ' = ' + euros(g.prix * r.payants)
-          + '  +  ' + r.offerts + ' offert' + (r.offerts > 1 ? 's' : '') + ' (0,00 €)');
-      } else {
-        L.push('  ' + r.payants + ' × ' + euros(g.prix) + ' = '
-          + euros(g.prix * r.payants));
+
+      if (!r.offerts) {
+        // Sans offre, chaque nuance porte son propre calcul.
+        codes.forEach(function (c) {
+          L.push(g.nom + ' – Nuance ' + c);
+          L.push(table[c] + ' tube' + (table[c] > 1 ? 's' : '') + ' × '
+            + euros(g.prix) + ' = ' + euros(g.prix * table[c]));
+          L.push('');
+        });
+        return;
       }
+
+      // Avec l'offre, les tubes offerts ne sont rattachés à aucune nuance :
+      // les nuances annoncent les quantités, puis deux lignes distinguent
+      // clairement ce qui est payé de ce qui est offert.
+      codes.forEach(function (c) {
+        L.push(g.nom + ' – Nuance ' + c);
+        L.push(table[c] + ' tube' + (table[c] > 1 ? 's' : '') + ' sélectionné'
+          + (table[c] > 1 ? 's' : ''));
+        L.push('');
+      });
+
+      L.push(g.nom + ' – Tubes payants');
+      L.push(r.payants + ' × ' + euros(g.prix) + ' = ' + euros(g.prix * r.payants));
+      L.push('');
+      L.push(g.nom + ' – Tubes OFFERTS');
+      L.push(r.offerts + ' × 0,00 € = 0,00 € (offert)');
+      L.push('');
     });
 
+    L.push('TOTAL HT : ' + euros(totalCents()));
     L.push('');
-    L.push('Montant total HT : ' + euros(totalCents()));
     if (etat.livraison) {
-      L.push('');
       L.push('Date de livraison souhaitée : ' + dateFr(etat.livraison));
+      L.push('');
     }
-    L.push('');
-    L.push('Pourriez-vous me confirmer la disponibilité des produits ainsi que la date de livraison ?');
-    L.push('');
-    L.push('Je vous remercie par avance.');
-    L.push('');
-    L.push('Bonne journée.');
+    L.push('Merci de me confirmer la disponibilité et la livraison.');
 
     return L.join('\n');
   }
