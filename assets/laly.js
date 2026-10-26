@@ -110,22 +110,22 @@
 
   /* ---- Garde-fous --------------------------------------------------- */
 
-  /** Si le droit baisse, on rogne la répartition offerte, jamais l'inverse. */
-  function ajusterOfferts(gamme) {
-    var droit = droitOfferts(gamme);
-    var codes = Object.keys(etat.offerts[gamme]);
-    if (!droit) {
-      etat.offerts[gamme] = {};
-      return;
-    }
-    var excedent = somme(etat.offerts[gamme]) - droit;
-    for (var i = codes.length - 1; i >= 0 && excedent > 0; i--) {
-      var c = codes[i];
-      var retire = Math.min(etat.offerts[gamme][c], excedent);
-      etat.offerts[gamme][c] -= retire;
-      excedent -= retire;
-      if (etat.offerts[gamme][c] <= 0) delete etat.offerts[gamme][c];
-    }
+  /** Tubes offerts sélectionnés au delà du droit acquis.
+   *
+   * On ne rogne plus la sélection dans le dos du salon : s'il retire des
+   * tubes payants après avoir choisi ses cadeaux, il garde sa sélection sous
+   * les yeux, le catalogue le lui dit, et l'envoi reste bloqué tant qu'il n'a
+   * pas corrigé. Une correction silencieuse ferait disparaître des nuances
+   * sans que personne ne s'en aperçoive avant la livraison.
+   */
+  function excesOfferts(gamme) {
+    return Math.max(0, somme(etat.offerts[gamme]) - droitOfferts(gamme));
+  }
+
+  function excesTotal() {
+    return Object.keys(DONNEES.gammes).reduce(function (t, g) {
+      return t + excesOfferts(g);
+    }, 0);
   }
 
   /* ---- Nuanciers ----------------------------------------------------- */
@@ -139,14 +139,12 @@
       var code = cellule.getAttribute('data-nuance');
       cellule.querySelector('[data-nuance-plus]').addEventListener('click', function () {
         etat.achats[gamme][code] = (etat.achats[gamme][code] || 0) + 1;
-        ajusterOfferts(gamme);
         rendre();
       });
       cellule.querySelector('[data-nuance-moins]').addEventListener('click', function () {
         if (!etat.achats[gamme][code]) return;
         etat.achats[gamme][code] -= 1;
         if (etat.achats[gamme][code] <= 0) delete etat.achats[gamme][code];
-        ajusterOfferts(gamme);
         rendre();
       });
     });
@@ -175,7 +173,6 @@
       Object.keys(etat.achats[gamme]).forEach(function (c) {
         etat.offerts[gamme][c] = etat.achats[gamme][c];
       });
-      ajusterOfferts(gamme);
       rendre();
     });
 
@@ -193,10 +190,19 @@
           c.classList.toggle('est-masque', !ok);
           if (ok) trouves++;
         });
-        // Une famille sans nuance visible n'a plus lieu d'être affichée.
+        // Une famille sans nuance visible n'a plus lieu d'être affichée ;
+        // celles qui en gardent s'ouvrent d'elles-mêmes, et se referment
+        // quand le champ est vidé — sauf si le salon les avait ouvertes.
         bloc.querySelectorAll('.famille').forEach(function (f) {
-          f.classList.toggle('est-masque',
-            !!q && !f.querySelectorAll('.nuance:not(.est-masque)').length);
+          var garde = f.querySelectorAll('.nuance:not(.est-masque)').length;
+          f.classList.toggle('est-masque', !!q && !garde);
+          if (q) {
+            if (!f.dataset.avant) f.dataset.avant = f.open ? 'ouverte' : 'fermee';
+            f.open = garde > 0;
+          } else if (f.dataset.avant) {
+            f.open = f.dataset.avant === 'ouverte';
+            delete f.dataset.avant;
+          }
         });
         filtreVide.hidden = !q || trouves > 0;
       });
@@ -243,20 +249,50 @@
 
     var msgReste = '';
     if (achetes > 0 && achetes < DONNEES.seuil) {
-      msgReste = (DONNEES.seuil - achetes) + ' tube'
-        + (DONNEES.seuil - achetes > 1 ? 's' : '') + ' avant l’offre';
-    } else if (reste > 0) {
-      msgReste = reste + ' tube' + (reste > 1 ? 's' : '') + ' offert'
-        + (reste > 1 ? 's' : '') + ' à répartir';
+      var manque = DONNEES.seuil - achetes;
+      msgReste = 'Encore ' + manque + ' tube' + (manque > 1 ? 's' : '')
+        + ' pour déclencher l’offre';
     }
     bloc.querySelector('[data-compte-reste]').textContent = msgReste;
 
+    // Le panneau reste ouvert tant qu'une nuance offerte est sélectionnée,
+    // même si le droit est retombé à zéro : sinon le salon ne pourrait plus
+    // corriger ce que le catalogue lui reproche.
+    var choisis = somme(etat.offerts[gamme]);
+    var exces = excesOfferts(gamme);
     var zone = bloc.querySelector('[data-offerts]');
-    zone.hidden = droit === 0;
-    bloc.querySelector('[data-offerts-reste]').textContent = reste;
-    bloc.querySelector('[data-offerts-mot]').textContent =
-      reste > 1 ? ' tubes à répartir' : ' tube à répartir';
+    zone.hidden = droit === 0 && choisis === 0;
+
+    bloc.querySelector('[data-offerts-solde]').textContent =
+      choisis + ' coloration' + (choisis > 1 ? 's' : '') + ' offerte'
+      + (choisis > 1 ? 's' : '') + ' sélectionnée' + (choisis > 1 ? 's' : '')
+      + ' sur ' + droit + ' disponible' + (droit > 1 ? 's' : '');
+
+    var alerte = bloc.querySelector('[data-offerts-alerte]');
+    alerte.hidden = exces === 0;
+    if (exces) {
+      alerte.textContent = droit === 0
+        ? 'Votre commande est repassée sous ' + DONNEES.seuil + ' tubes : retirez '
+          + 'les ' + choisis + ' coloration' + (choisis > 1 ? 's' : '') + ' offerte'
+          + (choisis > 1 ? 's' : '') + ' ou complétez vos achats.'
+        : exces + ' coloration' + (exces > 1 ? 's' : '') + ' offerte'
+          + (exces > 1 ? 's' : '') + ' de trop : retirez-en ' + exces
+          + ' pour pouvoir envoyer la commande.';
+    }
+    zone.classList.toggle('offerts--exces', exces > 0);
     bloc.querySelector('[data-offerts-ajout]').disabled = reste <= 0;
+
+    // Combien de tubes dans chaque famille repliée : la quantité choisie ne
+    // doit pas disparaître parce qu'on a refermé la catégorie.
+    bloc.querySelectorAll('[data-famille]').forEach(function (fam) {
+      var t = 0;
+      fam.querySelectorAll('.nuance').forEach(function (c) {
+        t += etat.achats[gamme][c.getAttribute('data-nuance')] || 0;
+      });
+      var badge = fam.querySelector('[data-famille-choisies]');
+      badge.hidden = t === 0;
+      badge.textContent = t + ' tube' + (t > 1 ? 's' : '');
+    });
 
     var liste = bloc.querySelector('[data-offerts-liste]');
     liste.textContent = '';
@@ -297,7 +333,8 @@
     bouton.addEventListener('click', function () {
       var ref = bouton.getAttribute('data-ajout');
       if (!DONNEES.produits[ref]) return;
-      etat.produits[ref] = (etat.produits[ref] || 0) + lire();
+      var qte = lire();
+      etat.produits[ref] = (etat.produits[ref] || 0) + qte;
       champ.value = 1;
       bouton.classList.add('est-ajoute');
       bouton.textContent = 'Ajouté';
@@ -306,8 +343,53 @@
         bouton.textContent = 'Ajouter';
       }, 1100);
       rendre();
+      pastilleAnime();
+      confirmer(ref, qte);
     });
   });
+
+  /* ---- Confirmations d'ajout ------------------------------------------ */
+
+  /* Un bandeau discret, jamais bloquant : le salon enchaîne ses ajouts sans
+     avoir à fermer quoi que ce soit. Les avis s'empilent et s'effacent seuls. */
+  var zoneAvis = document.querySelector('[data-avis]');
+
+  function confirmer(ref, qte) {
+    var p = DONNEES.produits[ref];
+    if (!p || !zoneAvis) return;
+
+    var avis = document.createElement('div');
+    avis.className = 'avis__item';
+    avis.innerHTML =
+      '<span class="avis__coche" aria-hidden="true">✓</span>' +
+      '<span class="avis__txt"><strong>' + qte + ' × ' + p.nom + '</strong>' +
+      '<span class="avis__fmt">' + p.fmt + '</span></span>' +
+      '<button type="button" class="avis__lien">Voir ma commande</button>';
+
+    avis.querySelector('.avis__lien').addEventListener('click', function () {
+      retirerAvis(avis);
+      ouvrir();
+    });
+
+    zoneAvis.appendChild(avis);
+    // Au delà de trois, on perd la lisibilité : le plus ancien part aussitôt.
+    // Retrait immédiat, et non par `retirerAvis` : celui-ci diffère la
+    // suppression le temps de l'animation, et la boucle tournerait sans fin
+    // si plusieurs ajouts tombaient dans le même cycle.
+    while (zoneAvis.children.length > 3) zoneAvis.firstElementChild.remove();
+
+    requestAnimationFrame(function () { avis.classList.add('est-la'); });
+    setTimeout(function () { retirerAvis(avis); }, 3600);
+  }
+
+  function retirerAvis(avis) {
+    if (!avis || avis.dataset.part) return;
+    avis.dataset.part = '1';
+    avis.classList.remove('est-la');
+    setTimeout(function () {
+      if (avis.parentNode) avis.parentNode.removeChild(avis);
+    }, 260);
+  }
 
   /* ---- Fiches à variantes -------------------------------------------- */
 
@@ -586,17 +668,25 @@
   var lienWa = panier.querySelector('[data-whatsapp]');
 
   function majLien() {
-    var rempli = nbArticles() > 0;
-    lienWa.setAttribute('aria-disabled', rempli ? 'false' : 'true');
-    lienWa.href = rempli
+    var exces = excesTotal();
+    var pret = nbArticles() > 0 && exces === 0;
+    lienWa.setAttribute('aria-disabled', pret ? 'false' : 'true');
+    lienWa.href = pret
       ? 'https://wa.me/' + DONNEES.tel + '?text=' + encodeURIComponent(message())
       : '#';
+    var avis = panier.querySelector('[data-panier-alerte]');
+    avis.hidden = exces === 0;
+    if (exces) {
+      avis.textContent = 'Vous avez sélectionné ' + exces + ' coloration'
+        + (exces > 1 ? 's' : '') + ' offerte' + (exces > 1 ? 's' : '')
+        + ' de trop. Corrigez la répartition dans la section Colorations '
+        + 'pour envoyer la commande.';
+    }
   }
 
   /* ---- Rendu global --------------------------------------------------- */
 
   function rendre() {
-    Object.keys(DONNEES.gammes).forEach(function (g) { ajusterOfferts(g); });
     blocsGamme.forEach(rendreGamme);
     rendrePanier();
 
@@ -609,6 +699,14 @@
 
     majLien();
     sauver();
+  }
+
+  function pastilleAnime() {
+    var pastille = document.querySelector('[data-compteur]');
+    if (!pastille) return;
+    pastille.classList.remove('est-maj');
+    void pastille.offsetWidth;          // force la relance de l'animation
+    pastille.classList.add('est-maj');
   }
 
   /* ---- Recherche ------------------------------------------------------ */
@@ -727,6 +825,26 @@
         apparition.observe(el);
       });
   }
+
+  /* ---- Impression ----------------------------------------------------- */
+
+  /* Un <details> fermé ne s'ouvre pas de façon fiable en CSS seul : on les
+     déplie avant l'impression, puis on rend à chacun son état. */
+  (function () {
+    var memoire = null;
+    window.addEventListener('beforeprint', function () {
+      var familles = document.querySelectorAll('[data-famille]');
+      memoire = [];
+      familles.forEach(function (f) { memoire.push(f.open); f.open = true; });
+    });
+    window.addEventListener('afterprint', function () {
+      if (!memoire) return;
+      document.querySelectorAll('[data-famille]').forEach(function (f, i) {
+        f.open = memoire[i];
+      });
+      memoire = null;
+    });
+  })();
 
   /* ---- Démarrage ------------------------------------------------------ */
 

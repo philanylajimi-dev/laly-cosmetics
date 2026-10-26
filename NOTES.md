@@ -230,7 +230,22 @@ visible en permanence et son premier onglet ramène à l'ouverture.
 L'affichage sur ordinateur et sur tablette est inchangé : mêmes colonnes,
 mêmes tailles de visuel qu'avant.
 
-## 13. Autres points
+## 13. Offre : ce que le catalogue refuse désormais
+
+Le droit aux colorations offertes suit la règle d'un tube offert par tube
+acheté au delà de 24, **sans plafond** : 24 → 24, 25 → 25, 30 → 30.
+
+Quand le salon réduit ses quantités payantes après avoir choisi ses cadeaux,
+le catalogue **ne rogne plus sa sélection en silence**. Il la laisse sous ses
+yeux, annonce l'excédent et bloque le bouton WhatsApp tant que la répartition
+n'est pas corrigée — dans le panneau de la gamme et dans le panier. Une
+correction automatique ferait disparaître des nuances sans que personne ne
+s'en aperçoive avant la livraison.
+
+Les nuances offertes restent librement choisies, indépendamment des payantes,
+dans la même gamme.
+
+## 14. Autres points
 
 - **TVA** : le catalogue affiche des prix HT, mentionnés comme tels partout.
   Aucun taux n'est appliqué ni affiché, faute d'instruction.

@@ -254,10 +254,17 @@ def bloc_nuances(gamme, donnees):
           <output class="nuance__qte" data-nuance-qte>0</output>
           <button type="button" class="nuance__b nuance__b--plus" data-nuance-plus aria-label="Ajouter un tube {e(code)}">+</button>
         </li>""")
-        familles.append(f"""<div class="famille">
-        <h4 class="famille__nom">{e(nom)}</h4>
+        # <details> plutôt qu'un repli maison : le clavier, les lecteurs
+        # d'écran et la recherche du navigateur le gèrent déjà, et la page
+        # reste utilisable si le JavaScript ne se charge pas.
+        familles.append(f"""<details class="famille" data-famille>
+        <summary class="famille__tete">
+          <h4 class="famille__nom">{e(nom)}</h4>
+          <span class="famille__compte">{len(codes)} nuance{"s" if len(codes) > 1 else ""}</span>
+          <span class="famille__choisies" data-famille-choisies hidden></span>
+        </summary>
         <ul class="famille__liste">{''.join(cases)}</ul>
-      </div>""")
+      </details>""")
     return "\n".join(familles)
 
 
@@ -309,9 +316,10 @@ def bloc_colorations():
 
     <div class="offerts" data-offerts hidden>
       <div class="offerts__tete">
-        <h4 class="gamme__sstitre">Nuances offertes</h4>
-        <p class="offerts__solde"><span data-offerts-reste>0</span><span data-offerts-mot> tube à répartir</span></p>
+        <h4 class="offerts__titre">Choisissez vos nuances offertes</h4>
+        <p class="offerts__solde" data-offerts-solde></p>
       </div>
+      <p class="offerts__alerte" data-offerts-alerte hidden role="alert"></p>
       <div class="offerts__outils">
         <button type="button" class="bouton bouton--fin" data-offerts-miroir>Reprendre la même répartition</button>
         <div class="offerts__ajout">
@@ -485,6 +493,10 @@ def rendre():
 
 <div class="voile" data-voile hidden></div>
 
+<!-- Les confirmations d'ajout s'empilent ici. aria-live="polite" les annonce
+     aux lecteurs d'écran sans jamais interrompre la navigation. -->
+<div class="avis" data-avis role="status" aria-live="polite"></div>
+
 <aside class="panier" data-panier aria-label="Ma commande" aria-hidden="true" hidden>
   <header class="panier__tete">
     <h2 class="panier__titre">Ma commande</h2>
@@ -498,6 +510,7 @@ def rendre():
   </div>
 
   <div class="panier__pied">
+    <p class="panier__alerte" data-panier-alerte hidden role="alert"></p>
     <p class="total"><span>Total HT</span><span class="total__v" data-total>0,00 €</span></p>
 
     <div class="champ">
