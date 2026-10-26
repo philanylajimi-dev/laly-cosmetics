@@ -548,32 +548,21 @@
       var g = DONNEES.gammes[gamme];
       var r = repartition(gamme);
 
-      if (!r.offerts) {
-        // Sans offre, chaque nuance porte son propre calcul.
-        codes.forEach(function (c) {
-          L.push(g.nom + ' – Nuance ' + c);
-          L.push(table[c] + ' tube' + (table[c] > 1 ? 's' : '') + ' × '
-            + euros(g.prix) + ' = ' + euros(g.prix * table[c]));
-          L.push('');
-        });
-        return;
-      }
+      // Un en-tête de gamme, les nuances avec leur quantité totale — tubes
+      // offerts compris — puis une seule ligne de récapitulation. Les tubes
+      // offerts n'étant rattachés à aucune nuance, c'est là qu'ils se disent.
+      L.push(g.nom + ' – Colorations ' + g.fmt);
+      L.push('');
 
-      // Avec l'offre, les tubes offerts ne sont rattachés à aucune nuance :
-      // les nuances annoncent les quantités, puis deux lignes distinguent
-      // clairement ce qui est payé de ce qui est offert.
       codes.forEach(function (c) {
-        L.push(g.nom + ' – Nuance ' + c);
-        L.push(table[c] + ' tube' + (table[c] > 1 ? 's' : '') + ' sélectionné'
+        L.push('Nuance ' + c + ' : ' + table[c] + ' tube'
           + (table[c] > 1 ? 's' : ''));
         L.push('');
       });
 
-      L.push(g.nom + ' – Tubes payants');
-      L.push(r.payants + ' × ' + euros(g.prix) + ' = ' + euros(g.prix * r.payants));
-      L.push('');
-      L.push(g.nom + ' – Tubes OFFERTS');
-      L.push(r.offerts + ' × 0,00 € = 0,00 € (offert)');
+      L.push(r.total + ' tube' + (r.total > 1 ? 's' : '')
+        + (r.offerts ? ' (dont ' + r.offerts + ' offert'
+          + (r.offerts > 1 ? 's' : '') + ')' : ''));
       L.push('');
     });
 

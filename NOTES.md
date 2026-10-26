@@ -265,28 +265,29 @@ coloration, une ligne « nom – Nuance X » suivie de
 offerts, qui ne sont rattachés à aucune nuance en particulier puisque le salon
 choisit librement dans une seule grille.
 
-**Quand l'offre ne s'applique pas**, chaque nuance porte son propre calcul,
-exactement comme un produit :
+Depuis le 26 octobre 2026, le bloc tient en un en-tête de gamme, une ligne par
+nuance et **une seule ligne de récapitulation** :
 
-    Profesia Hair – Nuance 7/0
-    20 tubes × 8,00 € = 160,00 €
+    Profesia Hair – Colorations 100 ml
 
-**Quand elle s'applique**, les nuances annoncent les quantités et deux lignes
-séparent ce qui est payé de ce qui est offert :
+    Nuance 7/0 : 20 tubes
 
-    Profesia Hair – Nuance 7/0
-    48 tubes sélectionnés
+    Nuance 6/1 : 18 tubes
 
-    Profesia Hair – Tubes payants
-    24 × 8,00 € = 192,00 €
+    Nuance 12/22 SS : 12 tubes
 
-    Profesia Hair – Tubes OFFERTS
-    24 × 0,00 € = 0,00 € (offert)
+    50 tubes (dont 25 offerts)
 
-    TOTAL HT : 219,80 €
+Sans promotion, la dernière ligne se limite au total — jamais de « dont
+0 offert ». Les quantités annoncées par nuance sont les quantités totales,
+tubes offerts compris.
 
-Le mot « offert » apparaît ainsi noir sur blanc, l'arithmétique reste
-vérifiable par le destinataire, et le total correspond exactement au panier.
+**À savoir** : le montant des colorations ne figure plus dans le message. Les
+lignes « Tubes payants » et « Tubes OFFERTS », qui le portaient, ont été
+retirées sur demande. Sur une commande mixte, le destinataire lit le détail
+chiffré des produits, puis les colorations sans montant, et le total général
+en fin de message. Pour le rétablir, ajouter `+ ' = ' + euros(g.prix *
+r.payants)` à la ligne de récapitulation, dans `message()` (`assets/laly.js`).
 
 ## 15. Autres points
 

@@ -386,6 +386,7 @@ def donnees_json():
         donnees = N.PROFESIA if col["gamme"] == "profesia" else N.EKSTRA
         gammes[col["gamme"]] = {
             "nom": col["nom"],
+            "fmt": col["contenance"].replace("Tube ", ""),
             "prix": col["prix"],
             "nuances": [code for _, codes in donnees["familles"] for code, _ in codes],
         }
