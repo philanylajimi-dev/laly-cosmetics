@@ -472,10 +472,11 @@ table { border-collapse: collapse; width: 100%; }
   }
 }
 
-/* Gamme vendue avec l'offre : le prix moyen prend la place du prix unitaire.
-   Sur téléphone il passe sous la photographie, sur toute la largeur — à côté,
+/* Prix des colorations : le prix du tube, puis l'offre. Même bloc, mêmes
+   tailles et mêmes écarts pour les deux gammes, sur tous les écrans. Sur
+   téléphone il passe sous la photographie, sur toute la largeur — à côté,
    la colonne de texte ferait à peine dix caractères. */
-.gamme__tete--tarif { row-gap: var(--e3); }
+.gamme__tete--tarif { row-gap: var(--e4); }
 .gamme__tete--tarif .tarif { grid-column: 1 / -1; }
 
 @media (min-width: 40rem) {
@@ -484,43 +485,25 @@ table { border-collapse: collapse; width: 100%; }
   .gamme__tete--tarif .tarif { grid-column: 2; align-self: start; }
 }
 
-.tarif__prix .prix__v { font-size: 2.125rem; }
-.tarif__prix .prix__d { font-size: 1.25rem; }
-.tarif__u {
-  margin-left: 0.25rem;
-  font-family: var(--ui);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--encre-70);
-}
-@media (min-width: 40rem) {
-  .tarif__prix .prix__v { font-size: 2.5rem; }
-  .tarif__prix .prix__d { font-size: 1.375rem; }
+.tarif {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--e3);
 }
 
-.tarif__seuil {
-  font-size: 0.875rem;
-  color: var(--encre-70);
-}
+.tarif__prix { line-height: 1; }
+.tarif__prix .prix__v { font-size: 2.25rem; }
+.tarif__prix .prix__d { font-size: 1.25rem; }
 
 .tarif__offre {
-  display: inline-block;
-  margin-top: var(--e3);
   padding: var(--e2) var(--e3);
   background: var(--orange-pale);
   border-left: 2px solid var(--orange);
   font-size: 0.875rem;
   font-weight: 500;
+  line-height: 1.4;
   color: #7a3f0a;
-}
-
-/* Le prix unitaire reste lisible — il engage le salon — mais ne doit jamais
-   concurrencer le prix moyen. */
-.tarif__unit {
-  margin-top: var(--e2);
-  font-size: 0.6875rem;
-  letter-spacing: 0.02em;
-  color: var(--encre-50);
 }
 
 .gamme__visuel { background: var(--gris); }

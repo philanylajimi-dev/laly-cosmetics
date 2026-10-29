@@ -284,12 +284,7 @@ COLORATIONS = [
         "nom": "Profesia Hair",
         "sous_titre": "Coloration permanente kératine et huile d'argan",
         "contenance": "Tube 100 ml",
-        # Prix d'un tube acheté, HT. L'affichage met en avant le prix moyen
-        # offre comprise — la moitié, un tube offert par tube acheté — et ne
-        # laisse ce prix unitaire qu'en mention discrète.
         "prix": 840,
-        "taxe": "HT",
-        "prix_moyen": True,
         "image": "coloration-color-7-0-100-ml",
     },
     {
@@ -298,7 +293,7 @@ COLORATIONS = [
         "nom": "Ekstra Color",
         "sous_titre": "Coloration sans ammoniaque",
         "contenance": "Tube 100 ml",
-        "prix": 840,
+        "prix": 880,
         "image": "coloration-sans-ammoniaque-ekstra-color-7-0-100-ml",
     },
 ]

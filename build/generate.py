@@ -269,18 +269,12 @@ def bloc_nuances(gamme, donnees):
 
 
 def tarif_offre(col):
-    """Prix d'une gamme vendue avec l'offre : le prix moyen en tête, offre
-    comprise, puis la condition, l'offre et, discrètement, le prix unitaire.
-
-    Le prix moyen n'est pas saisi : un tube offert par tube acheté, il vaut
-    toujours la moitié du prix unitaire.
-    """
+    """Prix d'une gamme de coloration : le prix du tube en grand, puis
+    l'offre, identiques d'une gamme à l'autre."""
     s = C.OFFRE["seuil"]
     return f"""<div class="tarif">
-      <p class="prix tarif__prix"><span class="prix__v">{euro(col['prix'] // 2)}</span><span class="prix__d">€</span><span class="tarif__u">/ tube</span></p>
-      <p class="tarif__seuil">À partir de {s} colorations achetées</p>
+      <p class="prix tarif__prix"><span class="prix__v">{euro(col['prix'])}</span><span class="prix__d">€</span><span class="prix__ht">HT le tube</span></p>
       <p class="tarif__offre">{s} colorations achetées = {s} colorations offertes</p>
-      <p class="tarif__unit">Prix unitaire : {col['prix'] // 100},{col['prix'] % 100:02d} € {col.get('taxe', 'HT')}</p>
     </div>"""
 
 
@@ -295,20 +289,15 @@ def bloc_colorations():
                      f'catalogue fournisseur. Le nuancier officiel {e(col["nom"])} '
                      f'reste à confirmer.</p>')
 
-        prix_gamme = (f'<p class="prix prix--lg"><span class="prix__v">{euro(col["prix"])}</span>'
-                      f'<span class="prix__d">€</span><span class="prix__ht">HT le tube</span></p>')
-        taxe = col.get("taxe", "HT")
-
         cartes.append(f"""<article class="gamme" data-gamme="{col['gamme']}" data-ref="{col['ref']}">
-  <div class="gamme__tete{' gamme__tete--tarif' if col.get('prix_moyen') else ''}">
+  <div class="gamme__tete gamme__tete--tarif">
     {visuel(col['image'], 'gamme__visuel')}
     <div class="gamme__ident">
       <h3 class="gamme__nom">{e(col['nom'])}</h3>
       <p class="gamme__sous">{e(col['sous_titre'])}</p>
       <p class="gamme__meta">{e(col['contenance'])}<span class="gamme__sep" aria-hidden="true"></span>{total_nuances} nuances</p>
-      {'' if col.get('prix_moyen') else prix_gamme}
     </div>
-    {tarif_offre(col) if col.get('prix_moyen') else ''}
+    {tarif_offre(col)}
   </div>
 
   {avert}
@@ -342,7 +331,7 @@ def bloc_colorations():
         <div class="bilan__l"><dt>Tubes payants</dt><dd data-bilan-payants>0</dd></div>
         <div class="bilan__l bilan__l--offert"><dt>Tubes offerts</dt><dd data-bilan-offerts>0</dd></div>
       </dl>
-      <p class="bilan__montant"><span>Montant à payer</span><span class="bilan__v"><span data-bilan-montant>0,00</span> € {taxe}</span></p>
+      <p class="bilan__montant"><span>Montant à payer</span><span class="bilan__v"><span data-bilan-montant>0,00</span> € HT</span></p>
       <p class="bilan__note" data-bilan-note></p>
     </div>
   </div>
