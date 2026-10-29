@@ -502,7 +502,7 @@ table { border-collapse: collapse; width: 100%; }
   font-family: var(--ui);
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--encre-70);
+  color: var(--encre-50);
 }
 
 .tarif__offre {
