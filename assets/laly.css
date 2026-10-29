@@ -495,6 +495,15 @@ table { border-collapse: collapse; width: 100%; }
 /* Tailles de `.prix--lg`, comme le prix de gamme d'origine ; l'écart avec
    l'encadré est porté par le `gap` du bloc. */
 .tarif .tarif__prix { margin-top: 0; line-height: 1; }
+/* Sur la ligne de base du prix, un cran sous le signe € : il précise sans
+   rivaliser avec le montant. */
+.tarif__u {
+  margin-left: 0.25rem;
+  font-family: var(--ui);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--encre-70);
+}
 
 .tarif__offre {
   padding: var(--e2) var(--e3);
