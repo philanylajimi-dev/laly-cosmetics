@@ -492,9 +492,9 @@ table { border-collapse: collapse; width: 100%; }
   gap: var(--e3);
 }
 
-.tarif__prix { line-height: 1; }
-.tarif__prix .prix__v { font-size: 2.25rem; }
-.tarif__prix .prix__d { font-size: 1.25rem; }
+/* Tailles de `.prix--lg`, comme le prix de gamme d'origine ; l'écart avec
+   l'encadré est porté par le `gap` du bloc. */
+.tarif .tarif__prix { margin-top: 0; line-height: 1; }
 
 .tarif__offre {
   padding: var(--e2) var(--e3);

@@ -273,7 +273,7 @@ def tarif_offre(col):
     l'offre, identiques d'une gamme à l'autre."""
     s = C.OFFRE["seuil"]
     return f"""<div class="tarif">
-      <p class="prix tarif__prix"><span class="prix__v">{euro(col['prix'])}</span><span class="prix__d">€</span><span class="prix__ht">HT le tube</span></p>
+      <p class="prix prix--lg tarif__prix"><span class="prix__v">{euro(col['prix'])}</span><span class="prix__d">€</span><span class="prix__ht">HT le tube</span></p>
       <p class="tarif__offre">{s} colorations achetées = {s} colorations offertes</p>
     </div>"""
 
